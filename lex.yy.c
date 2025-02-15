@@ -351,8 +351,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 38
-#define YY_END_OF_BUFFER 39
+#define YY_NUM_RULES 39
+#define YY_END_OF_BUFFER 40
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -362,8 +362,8 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[68] =
     {   0,
-        0,    0,    0,    0,    0,    0,   39,   37,   36,   36,
-       37,   30,   31,   19,   17,   29,   18,   20,   16,   28,
+        0,    0,    0,    0,    0,    0,   40,   38,   37,   36,
+       38,   30,   31,   19,   17,   29,   18,   20,   16,   28,
        21,   27,   23,   14,   32,   33,   14,   14,   14,   14,
        14,   34,   35,    4,    3,    4,    7,    6,   26,    1,
         5,   16,   22,   25,   24,   15,   14,   14,    8,   14,
@@ -493,9 +493,10 @@ char *yytext;
 
 void yyerror(const char *s);
 int debug = 1;  /* Set to 1 to enable debug printing */
-#line 497 "lex.yy.c"
+int line_num = 1;  /* Track line numbers */
+#line 498 "lex.yy.c"
 
-#line 499 "lex.yy.c"
+#line 500 "lex.yy.c"
 
 #define INITIAL 0
 #define COMMENT 1
@@ -714,9 +715,9 @@ YY_DECL
 		}
 
 	{
-#line 13 "cminus.l"
+#line 16 "cminus.l"
 
-#line 720 "lex.yy.c"
+#line 721 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -775,74 +776,74 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 14 "cminus.l"
+#line 17 "cminus.l"
 { BEGIN(COMMENT); if(debug) printf("LEX: Start multiline comment\n"); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 15 "cminus.l"
+#line 18 "cminus.l"
 { BEGIN(INITIAL); if(debug) printf("LEX: End multiline comment\n"); }
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 16 "cminus.l"
-{ /* Ignore newlines in comments */ }
+#line 19 "cminus.l"
+{ line_num++; /* Ignore newlines in comments */ }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 17 "cminus.l"
+#line 20 "cminus.l"
 { /* Ignore everything else in comments */ }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 19 "cminus.l"
+#line 22 "cminus.l"
 { BEGIN(LINE_COMMENT); if(debug) printf("LEX: Start single-line comment\n"); }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 20 "cminus.l"
-{ BEGIN(INITIAL); if(debug) printf("LEX: End single-line comment\n"); }
+#line 23 "cminus.l"
+{ line_num++; BEGIN(INITIAL); if(debug) printf("LEX: End single-line comment\n"); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 21 "cminus.l"
+#line 24 "cminus.l"
 { /* Ignore everything else in line comment */ }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 23 "cminus.l"
+#line 26 "cminus.l"
 { if(debug) printf("LEX: if\n"); return IF; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 24 "cminus.l"
+#line 27 "cminus.l"
 { if(debug) printf("LEX: else\n"); return ELSE; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 25 "cminus.l"
+#line 28 "cminus.l"
 { if(debug) printf("LEX: while\n"); return WHILE; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 26 "cminus.l"
+#line 29 "cminus.l"
 { if(debug) printf("LEX: return\n"); return RETURN; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 27 "cminus.l"
+#line 30 "cminus.l"
 { if(debug) printf("LEX: int\n"); return INT; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 28 "cminus.l"
+#line 31 "cminus.l"
 { if(debug) printf("LEX: void\n"); return VOID; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 30 "cminus.l"
+#line 33 "cminus.l"
 { 
     if(debug) printf("LEX: ID (%s)\n", yytext);
     yylval.string = strdup(yytext);
@@ -851,15 +852,16 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 36 "cminus.l"
+#line 39 "cminus.l"
 { 
-    printf("Invalid identifier: %s (identifiers cannot contain digits)\n", yytext);
+    printf("ERRO LEXICO: %s LINHA: %d\n", yytext, line_num);
     yyerror("Invalid identifier");
+    exit(1);
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 41 "cminus.l"
+#line 45 "cminus.l"
 { 
     if(debug) printf("LEX: NUM (%s)\n", yytext);
     yylval.number = atoi(yytext);
@@ -868,116 +870,122 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 47 "cminus.l"
+#line 51 "cminus.l"
 { if(debug) printf("LEX: +\n"); return PLUS; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 48 "cminus.l"
+#line 52 "cminus.l"
 { if(debug) printf("LEX: -\n"); return MINUS; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 49 "cminus.l"
+#line 53 "cminus.l"
 { if(debug) printf("LEX: *\n"); return TIMES; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 50 "cminus.l"
+#line 54 "cminus.l"
 { if(debug) printf("LEX: /\n"); return DIVIDE; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 51 "cminus.l"
+#line 55 "cminus.l"
 { if(debug) printf("LEX: <\n"); return LT; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 52 "cminus.l"
+#line 56 "cminus.l"
 { if(debug) printf("LEX: <=\n"); return LTE; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 53 "cminus.l"
+#line 57 "cminus.l"
 { if(debug) printf("LEX: >\n"); return GT; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 54 "cminus.l"
+#line 58 "cminus.l"
 { if(debug) printf("LEX: >=\n"); return GTE; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 55 "cminus.l"
+#line 59 "cminus.l"
 { if(debug) printf("LEX: ==\n"); return EQ; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 56 "cminus.l"
+#line 60 "cminus.l"
 { if(debug) printf("LEX: !=\n"); return NEQ; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 57 "cminus.l"
+#line 61 "cminus.l"
 { if(debug) printf("LEX: =\n"); return ASSIGN; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 58 "cminus.l"
+#line 62 "cminus.l"
 { if(debug) printf("LEX: ;\n"); return SEMI; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 59 "cminus.l"
+#line 63 "cminus.l"
 { if(debug) printf("LEX: ,\n"); return COMMA; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 60 "cminus.l"
+#line 64 "cminus.l"
 { if(debug) printf("LEX: (\n"); return LPAREN; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 61 "cminus.l"
+#line 65 "cminus.l"
 { if(debug) printf("LEX: )\n"); return RPAREN; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 62 "cminus.l"
+#line 66 "cminus.l"
 { if(debug) printf("LEX: [\n"); return LBRACKET; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 63 "cminus.l"
+#line 67 "cminus.l"
 { if(debug) printf("LEX: ]\n"); return RBRACKET; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 64 "cminus.l"
+#line 68 "cminus.l"
 { if(debug) printf("LEX: {\n"); return LBRACE; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 65 "cminus.l"
+#line 69 "cminus.l"
 { if(debug) printf("LEX: }\n"); return RBRACE; }
 	YY_BREAK
 case 36:
 /* rule 36 can match eol */
 YY_RULE_SETUP
-#line 67 "cminus.l"
-{ /* Skip whitespace */ }
+#line 71 "cminus.l"
+{ line_num++; /* Count newlines */ }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 68 "cminus.l"
-{ printf("Invalid character: %s\n", yytext); yyerror("Invalid character"); }
+#line 72 "cminus.l"
+{ /* Skip other whitespace */ }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 70 "cminus.l"
+#line 73 "cminus.l"
+{ printf("ERRO LEXICO: %s, LINHA: %d\n", yytext, line_num); yyerror("Invalid character"); 
+exit(1);}
+	YY_BREAK
+case 39:
+YY_RULE_SETUP
+#line 76 "cminus.l"
 ECHO;
 	YY_BREAK
-#line 981 "lex.yy.c"
+#line 989 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 case YY_STATE_EOF(LINE_COMMENT):
@@ -1984,7 +1992,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 70 "cminus.l"
+#line 76 "cminus.l"
 
 
 int yywrap() {

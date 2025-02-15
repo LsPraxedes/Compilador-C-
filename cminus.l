@@ -5,7 +5,10 @@
 
 void yyerror(const char *s);
 int debug = 1;  /* Set to 1 to enable debug printing */
+int line_num = 1;  /* Track line numbers */
 %}
+
+
 
 %x COMMENT
 %x LINE_COMMENT
@@ -13,11 +16,11 @@ int debug = 1;  /* Set to 1 to enable debug printing */
 %%
 "/*"            { BEGIN(COMMENT); if(debug) printf("LEX: Start multiline comment\n"); }
 <COMMENT>"*/"   { BEGIN(INITIAL); if(debug) printf("LEX: End multiline comment\n"); }
-<COMMENT>\n     { /* Ignore newlines in comments */ }
+<COMMENT>\n     { line_num++; /* Ignore newlines in comments */ }
 <COMMENT>.      { /* Ignore everything else in comments */ }
 
 "//"            { BEGIN(LINE_COMMENT); if(debug) printf("LEX: Start single-line comment\n"); }
-<LINE_COMMENT>\n { BEGIN(INITIAL); if(debug) printf("LEX: End single-line comment\n"); }
+<LINE_COMMENT>\n { line_num++; BEGIN(INITIAL); if(debug) printf("LEX: End single-line comment\n"); }
 <LINE_COMMENT>. { /* Ignore everything else in line comment */ }
 
 "if"        { if(debug) printf("LEX: if\n"); return IF; }
@@ -34,8 +37,9 @@ int debug = 1;  /* Set to 1 to enable debug printing */
 }
 
 [a-zA-Z][0-9]+   { 
-    printf("Invalid identifier: %s (identifiers cannot contain digits)\n", yytext);
+    printf("ERRO LEXICO: %s LINHA: %d\n", yytext, line_num);
     yyerror("Invalid identifier");
+    exit(1);
 }
 
 [0-9]+      { 
@@ -64,8 +68,10 @@ int debug = 1;  /* Set to 1 to enable debug printing */
 "{"         { if(debug) printf("LEX: {\n"); return LBRACE; }
 "}"         { if(debug) printf("LEX: }\n"); return RBRACE; }
 
-[ \t\n]     { /* Skip whitespace */ }
-.           { printf("Invalid character: %s\n", yytext); yyerror("Invalid character"); }
+\n          { line_num++; /* Count newlines */ }
+[ \t]       { /* Skip other whitespace */ }
+.           { printf("ERRO LEXICO: %s, LINHA: %d\n", yytext, line_num); yyerror("Invalid character"); 
+exit(1);}
 
 %%
 
