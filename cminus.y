@@ -10,15 +10,15 @@ extern FILE* yyin;
 extern char* yytext;
 void yyerror(const char *s);
 
-/* Tree node structure */
+//struct arvore
 typedef struct TreeNode {
     char *node_type;
     char *value;
     int num_children;
-    struct TreeNode *children[10];  // Maximum 10 children per node
+    struct TreeNode *children[10];  
 } TreeNode;
 
-/* Function to create a new tree node */
+
 TreeNode* new_node(char *node_type, char *value) {
     TreeNode *node = (TreeNode*)malloc(sizeof(TreeNode));
     node->node_type = strdup(node_type);
@@ -27,36 +27,32 @@ TreeNode* new_node(char *node_type, char *value) {
     return node;
 }
 
-/* Function to add child to a node */
 void add_child(TreeNode *parent, TreeNode *child) {
     if (child && parent->num_children < 10) {
         parent->children[parent->num_children++] = child;
     }
 }
 
-/* Function to print the tree */
+
 void print_tree(TreeNode *node, int depth) {
     if (node == NULL) return;
     
-    // Print indentation
     for (int i = 0; i < depth; i++) {
         printf("  ");
     }
     
-    // Print node information
     printf("%s", node->node_type);
     if (node->value) {
         printf(" (%s)", node->value);
     }
     printf("\n");
     
-    // Print children
     for (int i = 0; i < node->num_children; i++) {
         print_tree(node->children[i], depth + 1);
     }
 }
 
-TreeNode *root = NULL;  // Root of the syntax tree
+TreeNode *root = NULL;  
 %}
 
 %union {
@@ -80,7 +76,7 @@ TreeNode *root = NULL;  // Root of the syntax tree
 %type <node> expression var simple_expression relop additive_expression
 %type <node> addop term mulop factor call args arg_list
 
-/* Your precedence rules remain the same */
+
 %right ASSIGN
 %left EQ NEQ
 %left LT LTE GT GTE
@@ -94,7 +90,7 @@ TreeNode *root = NULL;  // Root of the syntax tree
 program
     : declaration_list
         { 
-            $$ = new_node("Program", NULL);
+            $$ = new_node("Programa", NULL);
             add_child($$, $1);
             root = $$;
         }
@@ -108,7 +104,7 @@ declaration_list
         }
     | declaration
         {
-            $$ = new_node("DeclarationList", NULL);
+            $$ = new_node("Declaracao-lista", NULL);
             add_child($$, $1);
         }
     ;
@@ -127,14 +123,14 @@ declaration
 var_declaration
     : type_specifier ID SEMI
         {
-            $$ = new_node("VarDeclaration", $2);
+            $$ = new_node("Var-declaracao", $2);
             add_child($$, $1);
         }
     | type_specifier ID LBRACKET NUM RBRACKET SEMI
         {
             char num_str[32];
             sprintf(num_str, "%d", $4);
-            $$ = new_node("ArrayDeclaration", $2);
+            $$ = new_node("Fun-declaracao", $2);
             add_child($$, $1);
             add_child($$, new_node("Size", num_str));
         }
@@ -143,18 +139,18 @@ var_declaration
 type_specifier
     : INT
         {
-            $$ = new_node("Type", "int");
+            $$ = new_node("Tipo", "int");
         }
     | VOID
         {
-            $$ = new_node("Type", "void");
+            $$ = new_node("Tipo", "void");
         }
     ;
 
 fun_declaration
     : type_specifier ID LPAREN params RPAREN compound_stmt
         {
-            $$ = new_node("FunctionDeclaration", $2);
+            $$ = new_node("Fun-declaracao", $2);
             add_child($$, $1);  // return type
             add_child($$, $4);  // parameters
             add_child($$, $6);  // function body
@@ -164,12 +160,12 @@ fun_declaration
 params
     : param_list
         {
-            $$ = new_node("Parameters", NULL);
+            $$ = new_node("params", NULL);
             add_child($$, $1);
         }
     | VOID
         {
-            $$ = new_node("Parameters", "void");
+            $$ = new_node("params", "void");
         }
     ;
 
@@ -181,7 +177,7 @@ param_list
         }
     | param
         {
-            $$ = new_node("ParameterList", NULL);
+            $$ = new_node("Param-lista", NULL);
             add_child($$, $1);
         }
     ;
@@ -189,12 +185,12 @@ param_list
 param
     : type_specifier ID
         {
-            $$ = new_node("Parameter", $2);
+            $$ = new_node("params", $2);
             add_child($$, $1);
         }
     | type_specifier ID LBRACKET RBRACKET
         {
-            $$ = new_node("ArrayParameter", $2);
+            $$ = new_node("params-lista", $2);
             add_child($$, $1);
         }
     ;
@@ -202,7 +198,7 @@ param
 compound_stmt
     : LBRACE local_declarations statement_list RBRACE
         {
-            $$ = new_node("CompoundStatement", NULL);
+            $$ = new_node("Composto-declaracao", NULL);
             add_child($$, $2);  // local declarations
             add_child($$, $3);  // statement list
         }
@@ -216,7 +212,7 @@ local_declarations
         }
     | /* empty */
         {
-            $$ = new_node("LocalDeclarations", NULL);
+            $$ = new_node("local-declaracao", NULL);
         }
     ;
 
@@ -228,7 +224,7 @@ statement_list
         }
     | /* empty */
         {
-            $$ = new_node("StatementList", NULL);
+            $$ = new_node("Statement-lista", NULL);
         }
     ;
 
@@ -258,25 +254,25 @@ statement
 expression_stmt
     : expression SEMI
         {
-            $$ = new_node("ExpressionStatement", NULL);
+            $$ = new_node("Expressao-declaracao", NULL);
             add_child($$, $1);
         }
     | SEMI
         {
-            $$ = new_node("EmptyStatement", NULL);
+            $$ = new_node("statement-vazio", NULL);
         }
     ;
 
 selection_stmt
     : IF LPAREN expression RPAREN statement %prec THEN
         {
-            $$ = new_node("IfStatement", NULL);
+            $$ = new_node("If-Statement", NULL);
             add_child($$, $3);  // condition
             add_child($$, $5);  // then branch
         }
     | IF LPAREN expression RPAREN statement ELSE statement
         {
-            $$ = new_node("IfElseStatement", NULL);
+            $$ = new_node("If-Else-Statement", NULL);
             add_child($$, $3);  // condition
             add_child($$, $5);  // then branch
             add_child($$, $7);  // else branch
@@ -286,7 +282,7 @@ selection_stmt
 iteration_stmt
     : WHILE LPAREN expression RPAREN statement
         {
-            $$ = new_node("WhileStatement", NULL);
+            $$ = new_node("While-Statement", NULL);
             add_child($$, $3);  // condition
             add_child($$, $5);  // body
         }
@@ -295,11 +291,11 @@ iteration_stmt
 return_stmt
     : RETURN SEMI
         {
-            $$ = new_node("ReturnStatement", "void");
+            $$ = new_node("Return-Statement", "void");
         }
     | RETURN expression SEMI
         {
-            $$ = new_node("ReturnStatement", NULL);
+            $$ = new_node("Return-Statement", NULL);
             add_child($$, $2);
         }
     ;
@@ -307,7 +303,7 @@ return_stmt
 expression
     : var ASSIGN expression
         {
-            $$ = new_node("AssignExpression", NULL);
+            $$ = new_node("Assign-Expression", NULL);
             add_child($$, $1);  // variable
             add_child($$, $3);  // value
         }
@@ -320,11 +316,11 @@ expression
 var
     : ID
         {
-            $$ = new_node("Variable", $1);
+            $$ = new_node("Variavel", $1);
         }
     | ID LBRACKET expression RBRACKET
         {
-            $$ = new_node("ArrayAccess", $1);
+            $$ = new_node("Variavel-Array", $1);
             add_child($$, $3);  // index
         }
     ;
@@ -332,7 +328,7 @@ var
 simple_expression
     : additive_expression relop additive_expression
         {
-            $$ = new_node("RelationalExpression", NULL);
+            $$ = new_node("Expressao", NULL);
             add_child($$, $1);  // left operand
             add_child($$, $2);  // operator
             add_child($$, $3);  // right operand
@@ -344,18 +340,18 @@ simple_expression
     ;
 
 relop
-    : LTE   { $$ = new_node("Operator", "<="); }
-    | LT    { $$ = new_node("Operator", "<"); }
-    | GT    { $$ = new_node("Operator", ">"); }
-    | GTE   { $$ = new_node("Operator", ">="); }
-    | EQ    { $$ = new_node("Operator", "=="); }
-    | NEQ   { $$ = new_node("Operator", "!="); }
+    : LTE   { $$ = new_node("operador", "<="); }
+    | LT    { $$ = new_node("operador", "<"); }
+    | GT    { $$ = new_node("operador", ">"); }
+    | GTE   { $$ = new_node("operador", ">="); }
+    | EQ    { $$ = new_node("operador", "=="); }
+    | NEQ   { $$ = new_node("operador", "!="); }
     ;
 
 additive_expression
     : additive_expression addop term
         {
-            $$ = new_node("AdditiveExpression", NULL);
+            $$ = new_node("soma-Expressao", NULL);
             add_child($$, $1);  // left operand
             add_child($$, $2);  // operator
             add_child($$, $3);  // right operand
@@ -367,14 +363,14 @@ additive_expression
     ;
 
 addop
-    : PLUS    { $$ = new_node("Operator", "+"); }
-    | MINUS   { $$ = new_node("Operator", "-"); }
+    : PLUS    { $$ = new_node("operador", "+"); }
+    | MINUS   { $$ = new_node("operador", "-"); }
     ;
 
 term
     : term mulop factor
         {
-            $$ = new_node("MultiplicativeExpression", NULL);
+            $$ = new_node("mult-Expressao", NULL);
             add_child($$, $1);  // left operand
             add_child($$, $2);  // operator
             add_child($$, $3);  // right operand
@@ -386,8 +382,8 @@ term
     ;
 
 mulop
-    : TIMES   { $$ = new_node("Operator", "*"); }
-    | DIVIDE  { $$ = new_node("Operator", "/"); }
+    : TIMES   { $$ = new_node("operador", "*"); }
+    | DIVIDE  { $$ = new_node("operador", "/"); }
     ;
 
 factor
@@ -407,14 +403,14 @@ factor
         {
             char num_str[32];
             sprintf(num_str, "%d", $1);
-            $$ = new_node("Number", num_str);
+            $$ = new_node("Num", num_str);
         }
     ;
 
 call
     : ID LPAREN args RPAREN
         {
-            $$ = new_node("FunctionCall", $1);
+            $$ = new_node("Function-Call", $1);
             add_child($$, $3);
         }
     ;
@@ -422,12 +418,12 @@ call
 args
     : arg_list
         {
-            $$ = new_node("Arguments", NULL);
+            $$ = new_node("Argumentos", NULL);
             add_child($$, $1);
         }
     | /* empty */
         {
-            $$ = new_node("Arguments", "void");
+            $$ = new_node("Argumentos", "void");
         }
     ;
 
@@ -439,7 +435,7 @@ arg_list
         }
     | expression
         {
-            $$ = new_node("ArgumentList", NULL);
+            $$ = new_node("Argument-List", NULL);
             add_child($$, $1);
         }
     ;
@@ -457,14 +453,13 @@ int main(int argc, char **argv) {
         }
     }
     
-    printf("Starting parsing...\n");
     int result = yyparse();
     
     if (result == 0 && root != NULL) {
-        printf("\nSyntax Tree:\n");
+        printf("\nArvore Sintatica:\n");
         print_tree(root, 0);
     }
     
-    printf("Parsing finished with result: %d\n", result);
+    printf("Parser retornou: %d\n", result);
     return result;
 }
