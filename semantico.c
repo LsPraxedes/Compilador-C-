@@ -6,32 +6,31 @@
 extern int line_num;  
 extern FILE* yyin;
 
-// Symbol types
+// tipos de simbolo
 typedef enum {
     SYMBOL_VARIABLE,
     SYMBOL_ARRAY,
     SYMBOL_FUNCTION
 } SymbolType;
 
-// Data types
+// tipos de dado
 typedef enum {
     TYPE_INT,
     TYPE_VOID
 } DataType;
 
-// Symbol table entry structure
 typedef struct SymbolEntry {
     char *name;
     SymbolType symbol_type;
     DataType data_type;
-    int array_size;  // For arrays
-    int num_params;  // For functions
-    DataType *param_types;  // For functions
+    int array_size; 
+    int num_params; 
+    DataType *param_types;
     int scope_level;
     struct SymbolEntry *next;
 } SymbolEntry;
 
-// Symbol table structure
+
 typedef struct {
     SymbolEntry *entries;
     int current_scope;
@@ -236,13 +235,13 @@ void analyze_node(TreeNode *node, int scope) {
     }
 }
 
-// Function to start semantic analysis
+
 void start_semantic_analysis(TreeNode *root) {
     symbol_table = init_symbol_table();
     analyze_node(root, 0);
 }
 
-// Function to print symbol table (for debugging)
+// printar a tabela de simbolos
 void print_symbol_table() {
     printf("\nTabela de simbolos:\n");
     printf("%-20s %-12s %-10s %-8s\n", "Nome", "Tipo", "Tipo de dado", "Escopo");
@@ -266,11 +265,11 @@ void print_symbol_table() {
 
 void execute_semantic_analysis(TreeNode *root) {
     if (root != NULL) {
-        printf("\nArvore Sintatica:\n");
-        print_tree(root, 0);
+        //printf("\nArvore Sintatica:\n");
+       // print_tree(root, 0);
         
-        printf("\nIniciando analise semantica...\n");
         start_semantic_analysis(root);
         print_symbol_table();
     }
+    print_tree(root, 0);
 }
