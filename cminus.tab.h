@@ -90,7 +90,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 58 "cminus.y"
+#line 20 "cminus.y"
 
     int number;
     char *string;

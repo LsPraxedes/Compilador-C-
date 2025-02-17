@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tokens.h"
+#include "tree.h"  
 
 extern int yylex();
 extern int line_num;
@@ -10,49 +11,10 @@ extern FILE* yyin;
 extern char* yytext;
 void yyerror(const char *s);
 
-//struct arvore
-typedef struct TreeNode {
-    char *node_type;
-    char *value;
-    int num_children;
-    struct TreeNode *children[10];  
-} TreeNode;
+// Declaração da função do analisador semântico
+void execute_semantic_analysis(TreeNode *root);
 
 
-TreeNode* new_node(char *node_type, char *value) {
-    TreeNode *node = (TreeNode*)malloc(sizeof(TreeNode));
-    node->node_type = strdup(node_type);
-    node->value = value ? strdup(value) : NULL;
-    node->num_children = 0;
-    return node;
-}
-
-void add_child(TreeNode *parent, TreeNode *child) {
-    if (child && parent->num_children < 10) {
-        parent->children[parent->num_children++] = child;
-    }
-}
-
-
-void print_tree(TreeNode *node, int depth) {
-    if (node == NULL) return;
-    
-    for (int i = 0; i < depth; i++) {
-        printf("  ");
-    }
-    
-    printf("%s", node->node_type);
-    if (node->value) {
-        printf(" (%s)", node->value);
-    }
-    printf("\n");
-    
-    for (int i = 0; i < node->num_children; i++) {
-        print_tree(node->children[i], depth + 1);
-    }
-}
-
-TreeNode *root = NULL;  
 %}
 
 %union {
@@ -456,10 +418,10 @@ int main(int argc, char **argv) {
     int result = yyparse();
     
     if (result == 0 && root != NULL) {
-        printf("\nArvore Sintatica:\n");
-        print_tree(root, 0);
+        // Chama o analisador semântico após o parsing bem-sucedido
+        execute_semantic_analysis(root);
     }
     
-    printf("Parser retornou: %d\n", result);
+    printf("\nParser retornou: %d\n", result);
     return result;
 }
