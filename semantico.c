@@ -30,23 +30,22 @@ typedef struct SymbolEntry {
     struct SymbolEntry *next;
 } SymbolEntry;
 
-
 typedef struct {
     SymbolEntry *entries;
     int current_scope;
 } SymbolTable;
 
-
 SymbolTable *symbol_table;
 
+// Forward declarations of functions
+SymbolEntry* create_symbol(char *name, SymbolType sym_type, DataType data_type, int scope);
+bool insert_symbol(SymbolEntry *entry);
+SymbolEntry* lookup_symbol(char *name, int scope);
+void semantic_error(const char *message, int line_num);
+void analyze_node(TreeNode *node, int scope);
+bool is_type_compatible(DataType type1, DataType type2);
 
-SymbolTable* init_symbol_table() {
-    SymbolTable *table = (SymbolTable*)malloc(sizeof(SymbolTable));
-    table->entries = NULL;
-    table->current_scope = 0;
-    return table;
-}
-
+// Function implementations
 SymbolEntry* create_symbol(char *name, SymbolType sym_type, DataType data_type, int scope) {
     SymbolEntry *entry = (SymbolEntry*)malloc(sizeof(SymbolEntry));
     entry->name = strdup(name);
@@ -58,6 +57,28 @@ SymbolEntry* create_symbol(char *name, SymbolType sym_type, DataType data_type, 
     entry->scope_level = scope;
     entry->next = NULL;
     return entry;
+}
+
+// Add built-in functions to symbol table
+void add_built_in_functions(SymbolTable *table) {
+    // Add input() function
+    SymbolEntry *input_func = create_symbol("input", SYMBOL_FUNCTION, TYPE_INT, 0);
+    input_func->num_params = 0;
+    insert_symbol(input_func);
+
+    // Add output() function
+    SymbolEntry *output_func = create_symbol("output", SYMBOL_FUNCTION, TYPE_VOID, 0);
+    output_func->num_params = 1;
+    output_func->param_types = (DataType*)malloc(sizeof(DataType));
+    output_func->param_types[0] = TYPE_INT;
+    insert_symbol(output_func);
+}
+
+SymbolTable* init_symbol_table() {
+    SymbolTable *table = (SymbolTable*)malloc(sizeof(SymbolTable));
+    table->entries = NULL;
+    table->current_scope = 0;
+    return table;
 }
 
 // Look up symbol in current scope or outer scopes
@@ -97,9 +118,6 @@ bool is_type_compatible(DataType type1, DataType type2) {
     }
     return true;
 }
-
-// Forward declaration
-void analyze_node(TreeNode *node, int scope);
 
 // Analyze variable declaration
 void analyze_var_declaration(TreeNode *node, int scope) {
@@ -182,7 +200,7 @@ DataType analyze_expression(TreeNode *node, int scope) {
         
         // Check arguments
         TreeNode *args = node->children[0];
-        if (args->num_children != entry->num_params) {
+        if (args && entry->num_params != (args->num_children > 0 ? args->num_children : 0)) {
             semantic_error("Wrong number of arguments", line_num);
         }
         
@@ -192,7 +210,7 @@ DataType analyze_expression(TreeNode *node, int scope) {
     // Handle binary operations
     if (node->num_children >= 2) {
         DataType left_type = analyze_expression(node->children[0], scope);
-        DataType right_type = analyze_expression(node->children[2], scope);
+        DataType right_type = analyze_expression(node->children[1], scope);
         
         if (!is_type_compatible(left_type, right_type)) {
             semantic_error("Type mismatch in expression", line_num);
@@ -234,13 +252,13 @@ void analyze_node(TreeNode *node, int scope) {
     }
 }
 
-
 void start_semantic_analysis(TreeNode *root) {
     symbol_table = init_symbol_table();
+    // Add built-in functions before starting analysis
+    add_built_in_functions(symbol_table);
     analyze_node(root, 0);
 }
 
-// printar a tabela de simbolos
 void print_symbol_table() {
     printf("\nTabela de simbolos:\n");
     printf("%-20s %-12s %-10s %-8s\n", "Nome", "Tipo", "Tipo de dado", "Escopo");
@@ -264,7 +282,6 @@ void print_symbol_table() {
 
 void execute_semantic_analysis(TreeNode *root) {
     if (root != NULL) {
-        
         start_semantic_analysis(root);
         print_symbol_table();
     }
