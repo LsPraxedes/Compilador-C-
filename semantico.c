@@ -36,10 +36,10 @@ typedef struct {
     int current_scope;
 } SymbolTable;
 
-// Global symbol table
+
 SymbolTable *symbol_table;
 
-// Initialize symbol table
+
 SymbolTable* init_symbol_table() {
     SymbolTable *table = (SymbolTable*)malloc(sizeof(SymbolTable));
     table->entries = NULL;
@@ -47,7 +47,6 @@ SymbolTable* init_symbol_table() {
     return table;
 }
 
-// Create new symbol entry
 SymbolEntry* create_symbol(char *name, SymbolType sym_type, DataType data_type, int scope) {
     SymbolEntry *entry = (SymbolEntry*)malloc(sizeof(SymbolEntry));
     entry->name = strdup(name);
@@ -265,8 +264,6 @@ void print_symbol_table() {
 
 void execute_semantic_analysis(TreeNode *root) {
     if (root != NULL) {
-        //printf("\nArvore Sintatica:\n");
-       // print_tree(root, 0);
         
         start_semantic_analysis(root);
         print_symbol_table();
